@@ -7,5 +7,5 @@ endif(WIN32)
 
 find_package(OpenCV REQUIRED)
 
-add_executable(polygon_intersec main.cpp utils.cpp)
-target_link_libraries(polygon_intersec ${OpenCV_LIBS})
+add_executable(polygonIntersect main.cpp polygonIntersect.cpp)
+target_link_libraries(polygonIntersect ${OpenCV_LIBS})

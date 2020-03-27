@@ -1,7 +1,7 @@
 #include <highgui.h>
 #include <cxcore.h>
 #include <vector>
-#include "utils.hpp"
+#include "polygonIntersect.hpp"
 
 const char * title = "Convex Polygon Intersection";
 class UIPolyIntersection {
@@ -11,9 +11,9 @@ class UIPolyIntersection {
 	int _height;
 	Polygon _poly[2];
 	Polygon _inter;
-	std::vector<CvPoint *> _all;
+	std::vector<cv::Point2i *> _all;
 	IplImage * curr_rgb;
-	CvPoint pCurr;
+	cv::Point2i pCurr;
 	int key;
 	int selected_point;
 	int hover_point;
@@ -28,7 +28,7 @@ public:
 		_height = _width*9/16;
 		hover_point = selected_point = -1;
 		curr_rgb = cvCreateImage(cvSize(_width,_height),8,3);
-		pCurr = cvPoint(0,0);
+		pCurr = cv::Point2i(0,0);
 		_resolution = _width /(float)_nb_grid;
 		//initRandom();
 		init();
@@ -36,24 +36,23 @@ public:
 		cvNamedWindow(title, CV_WINDOW_AUTOSIZE);
 		cvSetMouseCallback(title, &UIPolyIntersection::mouseCallback , this );
 	}
-
 	~UIPolyIntersection() {
 		cvReleaseImage(&curr_rgb);
 	}
 
 	void init() {
 		_poly[0].clear();
-		_poly[0].add(cvPoint(int(2* 3*_resolution),int(2*3*_resolution)));
-		_poly[0].add(cvPoint(int(2*11*_resolution),int(2*3*_resolution)));
-		_poly[0].add(cvPoint(int(2*11*_resolution),int(2*6*_resolution)));
-		_poly[0].add(cvPoint(int(2* 1*_resolution),int(2*6*_resolution)));
-		_poly[0].add(cvPoint(int(2* 1*_resolution),int(2*4*_resolution)));
+		_poly[0].add(cv::Point2i(int(2* 3*_resolution),int(2*3*_resolution)));
+		_poly[0].add(cv::Point2i(int(2*11*_resolution),int(2*3*_resolution)));
+		_poly[0].add(cv::Point2i(int(2*11*_resolution),int(2*6*_resolution)));
+		_poly[0].add(cv::Point2i(int(2* 1*_resolution),int(2*6*_resolution)));
+		_poly[0].add(cv::Point2i(int(2* 1*_resolution),int(2*4*_resolution)));
 							 
 		_poly[1].clear();	 
-		_poly[1].add(cvPoint(int(2*2*_resolution),int(2*1*_resolution)));
-		_poly[1].add(cvPoint(int(2*4*_resolution),int(2*1*_resolution)));
-		_poly[1].add(cvPoint(int(2*4*_resolution),int(2*5*_resolution)));
-		_poly[1].add(cvPoint(int(2*2*_resolution),int(2*5*_resolution)));
+		_poly[1].add(cv::Point2i(int(2*2*_resolution),int(2*1*_resolution)));
+		_poly[1].add(cv::Point2i(int(2*4*_resolution),int(2*1*_resolution)));
+		_poly[1].add(cv::Point2i(int(2*4*_resolution),int(2*5*_resolution)));
+		_poly[1].add(cv::Point2i(int(2*2*_resolution),int(2*5*_resolution)));
 
 		for (int j = 0 ; j < 2 ; j++ ) {
 			for (int i = 0 ; i < _poly[j].size() ; i++ ) {
@@ -68,7 +67,7 @@ public:
 			int n = 5;
 			_poly[j].clear();
 			for (int i = 0 ; i < n ; i++ ) {
-				CvPoint p = cvPoint(rand()%_width,rand()%_height);
+				cv::Point2i p = cv::Point2i(rand()%_width,rand()%_height);
 				_poly[j].push_back(p);
 				_all.push_back(&_poly[j][i]);
 			}
@@ -83,7 +82,7 @@ public:
 	}
 
 	void mouseEvent( int event, int x, int y, int flags, void* ) {
-		pCurr = cvPoint(x,y);
+		pCurr = cv::Point2i(x,y);
 		hover_point = -1;
 		for(size_t i  = 0 ; i < _all.size() ; i++ ){
 			if(distPoint(pCurr,*_all[i]) < 5) {
@@ -108,8 +107,8 @@ public:
 	void drawGrid() {
 		for (int r = 0 ; r < _nb_grid ; r++ ) {
 			int var = (int)(_resolution * r);
-			cvDrawLine(curr_rgb,cvPoint(0,var),cvPoint(_width,var),CV_RGB(50,50,50));
-			cvDrawLine(curr_rgb,cvPoint(var,0),cvPoint(var,_width),CV_RGB(50,50,50));
+			cvDrawLine(curr_rgb,cv::Point2i(0,var),cv::Point2i(_width,var),CV_RGB(50,50,50));
+			cvDrawLine(curr_rgb,cv::Point2i(var,0),cv::Point2i(var,_width),CV_RGB(50,50,50));
 		}
 	}
 
@@ -127,7 +126,7 @@ public:
 				sprintf(buff,"%d",i); cvPutText(curr_rgb,buff,_poly[j][i],&font,c[j]);
 			}
 			float area = _poly[j].area();
-			CvPoint center = _poly[j].getCenter();
+			cv::Point2i center = _poly[j].getCenter();
 			sprintf(buff,"Area = %0.1f",area/(_resolution*_resolution)); cvPutText(curr_rgb,buff,center,&font,c[j]);
 		}
 
@@ -144,7 +143,7 @@ public:
 		}
 		if( _inter.size() ) {
 			float area = _inter.area();
-			CvPoint center = _inter.getCenter();
+			cv::Point2i center = _inter.getCenter();
 			sprintf(buff,"Area intersected = %0.1f",area/(_resolution*_resolution)); cvPutText(curr_rgb,buff,center,&font,c[2]);
 		}
 	}
@@ -152,8 +151,8 @@ public:
 	void paintImage() {
 		cvZero(curr_rgb);
 		drawGrid();
-		cvDrawLine(curr_rgb,cvPoint(pCurr.x,0),cvPoint(pCurr.x,curr_rgb->height),CV_RGB(255,0,255));
-		cvDrawLine(curr_rgb,cvPoint(0,pCurr.y),cvPoint(curr_rgb->width,pCurr.y),CV_RGB(255,0,255));
+		cvDrawLine(curr_rgb,cv::Point2i(pCurr.x,0),cv::Point2i(pCurr.x,curr_rgb->height),CV_RGB(255,0,255));
+		cvDrawLine(curr_rgb,cv::Point2i(0,pCurr.y),cv::Point2i(curr_rgb->width,pCurr.y),CV_RGB(255,0,255));
 		drawPoints();
 
 		if( hover_point != -1) {
@@ -165,7 +164,7 @@ public:
 		}
 	}
 
-	float computeArea(const CvPoint * points,int n) {
+	float computeArea(const cv::Point2i * points,int n) {
 		float area0 = 0.;
 		for (int i = 0 ; i < n ; i++ ) {
 			int j = (i+1)%n;
