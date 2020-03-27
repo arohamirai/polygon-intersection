@@ -1,5 +1,5 @@
-#ifndef __UTILS_HPP__
-#define __UTILS_HPP__
+#ifndef POLYGONINTERSECT_H
+#define POLYGONINTERSECT_H
 
 #include <cxcore.h>
 #include <vector>
@@ -41,4 +41,3 @@ void intersectPolygonSHPC(const Polygon * sub,const Polygon* clip,Polygon* res) 
 void intersectPolygonSHPC(const Polygon & sub,const Polygon& clip,Polygon& res) ;
 
 #endif //
-

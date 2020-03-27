@@ -1,34 +1,34 @@
-#include "polygonIntersect.hpp"
+#include "polygonIntersect.h"
 
-float distPoint(cv::Point2f v,cv::Point2f w) { 
+float distPoint(cv::Point2f v,cv::Point2f w) {
 	return sqrtf((v.x - w.x)*(v.x - w.x) + (v.y - w.y)*(v.y - w.y)) ;
 }
 
-float distPoint(cv::Point2i p1,cv::Point2i p2) { 
+float distPoint(cv::Point2i p1,cv::Point2i p2) {
 	int x = p1.x - p2.x;
 	int y = p1.y - p2.y;
 	return sqrt((float)x*x+y*y);
 }
-/*
-static cv::Point2f point2i22f( cv::Point2i p) {
-	cv::Point2f s;
+
+static cv::Point2f Point2Di2f( cv::Point2i p) {
+  cv::Point2f s;
 	s.x= (float)p.x;
 	s.y= (float)p.y;
 	return s;
 }
-/**/
+
 bool segementIntersection(cv::Point2i p0,cv::Point2i p1,cv::Point2i p2,cv::Point2i p3,cv::Point2i * intersection) {
-	cv::Point2f p;
-	bool ok = segementIntersection(cv::Point2f(p0),cv::Point2f(p1),cv::Point2f(p2),cv::Point2f(p3),&p);
+  cv::Point2f p;
+  bool ok = segementIntersection(Point2Di2f(p0),Point2Di2f(p1),Point2Di2f(p2),Point2Di2f(p3),&p);
 	if( ok ) 
-		*intersection = cv::Point2i((int)p.x,(int)p.y);
+    *intersection = cv::Point2i((int)p.x,(int)p.y);
 	return ok;
 }
 
 bool segementIntersection(cv::Point2f p0,cv::Point2f p1,cv::Point2f p2,cv::Point2f p3,cv::Point2f * intersection) {
-	cv::Point2f s1, s2;
-	s1 = cv::Point2f(p1.x - p0.x, p1.y - p0.y);
-	s2 = cv::Point2f(p3.x - p2.x, p3.y - p2.y);
+  cv::Point2f s1, s2;
+  s1 = cv::Point2f(p1.x - p0.x, p1.y - p0.y);
+  s2 = cv::Point2f(p3.x - p2.x, p3.y - p2.y);
 
 	float s10_x = p1.x - p0.x;
 	float s10_y = p1.y - p0.y;
@@ -61,7 +61,7 @@ bool segementIntersection(cv::Point2f p0,cv::Point2f p1,cv::Point2f p2,cv::Point
 
 	float t = t_numer / denom;
 
-	*intersection = cv::Point2f(p0.x + (t * s10_x), p0.y + (t * s10_y) );
+  *intersection = cv::Point2f(p0.x + (t * s10_x), p0.y + (t * s10_y) );
 	return true;
 }
 
@@ -101,12 +101,12 @@ float computeArea(const cv::Point2i * pt,int n ) {
 }
 
 struct PointAngle{
-	cv::Point2i p;
+  cv::Point2i p;
 	float angle;
 };
 
 cv::Point2i Polygon::getCenter() const {
-	cv::Point2i center;
+  cv::Point2i center;
 	center.x = 0;
 	center.y = 0;
 	for (int i = 0 ; i < n ; i++ ) {
@@ -131,7 +131,7 @@ float Polygon::area() const {
 
 void Polygon::pointsOrdered() {
 	if( n <= 0) return;
-	cv::Point2i center = getCenter();
+  cv::Point2i center = getCenter();
 	PointAngle pc[MAX_POINT_POLYGON];
 	for (int i = 0 ; i < n ; i++ ) {
 		pc[i].p.x = pt[i].x;
@@ -165,13 +165,13 @@ void intersectPolygon( const cv::Point2i * poly0, int n0,const cv::Point2i * pol
 	}
 
 	for (int i = 0 ; i < n0 ;i++) {
-		cv::Point2i p0,p1,p2,p3;
+    cv::Point2i p0,p1,p2,p3;
 		p0 = poly0[i];
 		p1 = poly0[(i+1)%n0];
 		for (int j = 0 ; j < n1 ;j++) {
 			p2 = poly1[j];
 			p3 = poly1[(j+1)%n1];
-			cv::Point2i pinter;
+      cv::Point2i pinter;
 			if(segementIntersection(p0,p1,p2,p3,&pinter)) {
 				inter.add(pinter);
 			}
@@ -199,7 +199,7 @@ static inline cv::Point2i* vsub(const cv::Point2i* a,const cv::Point2i* b, cv::P
 }
 
 static int line_sect(const cv::Point2i* x0,const cv::Point2i* x1,const cv::Point2i* y0,const cv::Point2i* y1, cv::Point2i* res) {
-	cv::Point2i dx, dy, d;
+  cv::Point2i dx, dy, d;
 	vsub(x1, x0, &dx);
 	vsub(y1, y0, &dy);
 	vsub(x0, y0, &d);
@@ -213,7 +213,7 @@ static int line_sect(const cv::Point2i* x0,const cv::Point2i* x1,const cv::Point
 }
 
 static int left_of(const cv::Point2i* a,const cv::Point2i* b,const cv::Point2i* c) {
-	cv::Point2i tmp1, tmp2;
+  cv::Point2i tmp1, tmp2;
 	int x;
 	vsub(b, a, &tmp1);
 	vsub(c, b, &tmp2);
@@ -223,9 +223,9 @@ static int left_of(const cv::Point2i* a,const cv::Point2i* b,const cv::Point2i* 
 
 static void poly_edge_clip(const Polygon* sub,const  cv::Point2i* x0,const  cv::Point2i* x1, int left, Polygon* res) {
 	int i, side0, side1;
-	cv::Point2i tmp;
-	const cv::Point2i* v0 = sub->pt+ sub->n - 1;
-	const cv::Point2i* v1;
+  cv::Point2i tmp;
+  const cv::Point2i* v0 = sub->pt+ sub->n - 1;
+  const cv::Point2i* v1;
 	res->clear();
 
 	side0 = left_of(x0, x1, v0);

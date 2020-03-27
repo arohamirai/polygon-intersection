@@ -1,7 +1,7 @@
 #include <highgui.h>
 #include <cxcore.h>
 #include <vector>
-#include "polygonIntersect.hpp"
+#include "polygonIntersect.h"
 
 const char * title = "Convex Polygon Intersection";
 class UIPolyIntersection {
